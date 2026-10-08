@@ -369,8 +369,18 @@ namespace Unity.Pipeline.Editor.Commands.Build
             var files = new List<BuildFileEntry>();
             try
             {
+#if UNITY_2022_2_OR_NEWER
                 foreach (var f in report.GetFiles())
                     files.Add(new BuildFileEntry { Path = f.path, Role = f.role, SizeBytes = (long)f.size });
+#else
+                // Pre-2022.2 BuildReport has no per-file API; approximate with the summary.
+                files.Add(new BuildFileEntry
+                {
+                    Path = report.summary.outputPath,
+                    Role = "build-output",
+                    SizeBytes = (long)report.summary.totalSize
+                });
+#endif
             }
             catch (Exception ex)
             {

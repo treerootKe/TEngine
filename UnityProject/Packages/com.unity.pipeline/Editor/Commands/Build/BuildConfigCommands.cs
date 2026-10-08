@@ -126,7 +126,12 @@ namespace Unity.Pipeline.Editor.Commands.Build
                 if (!string.Equals(current, requested.ToString(), StringComparison.Ordinal))
                 {
                     if (!dryRun)
+#if UNITY_2022_2_OR_NEWER
                         PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.FromBuildTargetGroup(group), requested);
+#else
+                        // Pre-2022.2 only exposes the global (non-per-target) setting.
+                        EditorUserBuildSettings.il2CppCodeGeneration = requested;
+#endif
                     result.Applied["il2CppCodeGeneration"] = requested.ToString();
                 }
                 else
@@ -176,7 +181,11 @@ namespace Unity.Pipeline.Editor.Commands.Build
         {
             try
             {
+#if UNITY_2022_2_OR_NEWER
                 return PlayerSettings.GetIl2CppCodeGeneration(NamedBuildTarget.FromBuildTargetGroup(group)).ToString();
+#else
+                return EditorUserBuildSettings.il2CppCodeGeneration.ToString();
+#endif
             }
             catch
             {
